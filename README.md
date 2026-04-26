@@ -1,3 +1,6 @@
+<img width="896" height="500" alt="image" src="https://github.com/user-attachments/assets/6b4d9126-ddbf-4960-a9ce-059ab43cc98e" />
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # 🎯 Office Agents Skill
 
 > **Skill de opencode** para integrar Microsoft Office (Excel, Word, PowerPoint) con AI mediante el puente de [office-agents](https://github.com/hewliyang/office-agents).
