@@ -40,16 +40,35 @@ async function inspect(app) {
   
   const installDir = config.installDir;
   const appName = app === 'ppt' || app === 'powerpoint' ? 'powerpoint' : app;
+  const bridgeCli = path.join(installDir, 'packages', 'bridge', 'dist', 'cli.js');
   
   try {
-    execSync('pnpm exec office-bridge inspect ' + appName, { 
-      cwd: installDir, 
-      stdio: 'inherit' 
-    });
+    const pnpmPath = path.join(process.env.APPDATA || '', 'Roaming', 'npm', 'pnpm.cmd');
+    if (fs.existsSync(pnpmPath)) {
+      execSync(`"${pnpmPath}" exec office-bridge inspect ${appName}`, { 
+        cwd: installDir, 
+        stdio: 'inherit',
+        shell: true
+      });
+    } else {
+      execSync(`npx pnpm exec office-bridge inspect ${appName}`, { 
+        cwd: installDir, 
+        stdio: 'inherit',
+        shell: true
+      });
+    }
   } catch (error) {
-    log('Error: No se pudo inspeccionar la sesión.');
-    log('Asegúrate de que el add-in está corriendo: office-agents start excel');
-    process.exit(1);
+    try {
+      execSync(`node "${bridgeCli}" inspect ${appName}`, { 
+        cwd: installDir, 
+        stdio: 'inherit',
+        shell: true
+      });
+    } catch {
+      log('Error: No se pudo inspeccionar la sesión.');
+      log('Asegúrate de que el add-in está corriendo: office-agents start excel');
+      process.exit(1);
+    }
   }
 }
 

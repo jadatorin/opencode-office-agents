@@ -30,16 +30,38 @@ async function list() {
   }
   
   const installDir = config.installDir;
+  const bridgeCli = path.join(installDir, 'packages', 'bridge', 'dist', 'cli.js');
   
   try {
-    execSync('pnpm exec office-bridge list', { 
-      cwd: installDir, 
-      stdio: 'inherit' 
-    });
+    // Use npx pnpm or direct node call
+    const pnpmPath = path.join(process.env.APPDATA || '', 'Roaming', 'npm', 'pnpm.cmd');
+    if (fs.existsSync(pnpmPath)) {
+      execSync(`"${pnpmPath}" exec office-bridge list`, { 
+        cwd: installDir, 
+        stdio: 'inherit',
+        shell: true
+      });
+    } else {
+      // Fallback: use npx
+      execSync(`npx pnpm exec office-bridge list`, { 
+        cwd: installDir, 
+        stdio: 'inherit',
+        shell: true
+      });
+    }
   } catch (error) {
-    log('Error: No se pudo conectar al bridge.');
-    log('Asegúrate de que el add-in está corriendo: office-agents start excel');
-    process.exit(1);
+    // If pnpm fails, try direct node call
+    try {
+      execSync(`node "${bridgeCli}" list`, { 
+        cwd: installDir, 
+        stdio: 'inherit',
+        shell: true
+      });
+    } catch {
+      log('Error: No se pudo conectar al bridge.');
+      log('Asegúrate de que el add-in está corriendo: office-agents start excel');
+      process.exit(1);
+    }
   }
 }
 
