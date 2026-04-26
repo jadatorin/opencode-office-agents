@@ -45,13 +45,30 @@ async function install() {
     process.exit(1);
   }
   
-  // pnpm
+  // pnpm - Try global first, then use npx
+  let pnpmAvailable = false;
   try {
     execSync('pnpm --version', { encoding: 'utf8' });
-    log('pnpm: instalado', 'success');
+    pnpmAvailable = true;
   } catch {
     log('Instalando pnpm...', 'warn');
-    execSync('npm install -g pnpm', { stdio: 'inherit' });
+    try {
+      execSync('npm install -g pnpm', { stdio: 'inherit', shell: true });
+      pnpmAvailable = true;
+    } catch {
+      // try npx as fallback
+      try {
+        execSync('npx pnpm --version', { encoding: 'utf8' });
+        pnpmAvailable = true;
+      } catch {
+        // use npm instead
+        log('Usando npm como fallback...', 'warn');
+      }
+    }
+  }
+  
+  if (pnpmAvailable) {
+    log('pnpm: instalado', 'success');
   }
   
   // Microsoft 365 Apps (verificación básica)
@@ -88,16 +105,23 @@ async function install() {
     });
   }
   
-  // 3. Instalar dependencias
+  // 3. Instalar dependencias (use npx pnpm as fallback)
   log('Instalando dependencias...', 'info');
-  execSync('pnpm install', { cwd: INSTALL_DIR, stdio: 'inherit' });
+  const pnpmCmd = process.platform === 'win32' ? 'npx pnpm' : 'npx pnpm';
+  try {
+    execSync(pnpmCmd + ' install', { cwd: INSTALL_DIR, stdio: 'inherit', shell: true });
+  } catch {
+    log('Retry con npm...', 'warn');
+    execSync('npm install', { cwd: INSTALL_DIR, stdio: 'inherit', shell: true });
+  }
   
   // 4. Configurar certificados de desarrollo
   log('Configurando certificados de desarrollo...', 'info');
   try {
     execSync('npx office-addin-dev-certs install', { 
       cwd: INSTALL_DIR, 
-      stdio: 'inherit' 
+      stdio: 'inherit',
+      shell: true
     });
   } catch {
     log('Certificados ya configurados o requiere atención manual', 'warn');

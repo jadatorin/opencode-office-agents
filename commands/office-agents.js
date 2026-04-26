@@ -7,7 +7,7 @@
 const path = require('path');
 const fs = require('fs');
 
-const COMMANDS_DIR = path.join(__dirname, 'commands');
+const COMMANDS_DIR = __dirname;
 
 function log(msg) {
   console.log(msg);
@@ -187,7 +187,14 @@ async function main() {
   }
   
   // Cargar subcomando
-  const commandPath = path.join(COMMANDS_DIR, command === 'start' ? 'start.js' : command + '.js');
+  const commandFileMap = {
+    'start': 'start.js',
+    'install': 'setup.js',
+    'stop': 'stop.js'
+  };
+  
+  const commandFile = commandFileMap[command] || (command + '.js');
+  const commandPath = path.join(COMMANDS_DIR, commandFile);
   
   if (!fs.existsSync(commandPath)) {
     log(`Comando no implementado: ${command}`);
