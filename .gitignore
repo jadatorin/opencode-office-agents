@@ -1,0 +1,29 @@
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# Dependencies
+node_modules/
+dist/
+build/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Office temp
+~$*.doc*
+~$*.xls*
+~$*.ppt*
+
+# Environment
+.env
+.env.local
+*.env

@@ -1,0 +1,25 @@
+{
+  "name": "office-agents",
+  "version": "1.0.0",
+  "description": "Microsoft Office AI integration via office-agents bridge",
+  "main": "commands/office-agents.js",
+  "bin": {
+    "office-agents": "commands/office-agents.js"
+  },
+  "scripts": {
+    "start": "node commands/office-agents.js"
+  },
+  "keywords": ["office", "excel", "word", "powerpoint", "ai", "office-agents"],
+  "author": "BITORIN",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jadatorin/opencode-office-agents"
+  },
+  "homepage": "https://github.com/jadatorin/opencode-office-agents#readme"
+}
