@@ -195,19 +195,23 @@ async function main() {
   
   const commandFile = commandFileMap[command] || (command + '.js');
   const commandPath = path.join(COMMANDS_DIR, commandFile);
-  
+
   if (!fs.existsSync(commandPath)) {
     log(`Comando no implementado: ${command}`);
     process.exit(1);
   }
-  
-  // Ejecutar subcomando
-  try {
-    require(commandPath);
-  } catch (error) {
-    log(`Error: ${error.message}`);
-    process.exit(1);
-  }
+
+  // Ejecutar subcomando - usar exec con shell para manejar espacios
+  const { execSync } = require('child_process');
+  // Obtener solo los argumentos después del subcomando (proces.argv[2] es el comando, [3] es el primero argumento)
+  const subArgs = process.argv.slice(3).join(' ');
+  const cmd = `node "${commandPath}" ${subArgs}`;
+  execSync(cmd, { 
+    stdio: 'inherit', 
+    shell: true,
+    cwd: process.cwd(),
+    env: process.env
+  });
 }
 
 main();
