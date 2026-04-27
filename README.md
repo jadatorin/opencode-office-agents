@@ -5,23 +5,19 @@
 
 > **Skill de opencode** para integrar Microsoft Office (Excel, Word, PowerPoint) con AI mediante el puente de [office-agents](https://github.com/hewliyang/office-agents).
 
-## ⚠️ Setup Requerido (3 Terminales)
+## ⚠️ Setup Requerido
 
-Para desarrollar con office-agents necesitás **3 terminals simultáneas**:
+Para desarrollar con office-agents necesitás **3 terminals simultáneas**. La forma más fácil es usar el script automático:
 
-| Terminal | Comando | Descripción |
-|----------|---------|-------------|
-| 1 | `node packages\bridge\dist\cli.js serve` | Bridge server (https://localhost:4017) |
-| 2 | `cd packages/excel && npx vite --port 3000` | Dev server Excel |
-| 3 | `npx office-addin-dev-settings sideload packages\excel\manifest.xml --app Excel` | Sideload add-in |
-
-### O más fácil con la skill:
-
-```bash
-office-agents start excel
+```powershell
+# Ejecutar el script (abre las 3 terminals automáticamente)
+powershell -ExecutionPolicy Bypass -File "scripts\start-excel.ps1"
 ```
 
-Esto abre 2 terminals y después ejecutás el sideload manualmente.
+O manualmente:
+1. Bridge: `node packages\bridge\dist\cli.js serve`
+2. Dev Server: `cd packages/excel && npx vite --port 3000`
+3. Sideload: `npx office-addin-dev-settings sideload packages\excel\manifest.xml --app Excel`
 
 ---
 
