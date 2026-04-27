@@ -74,6 +74,8 @@ async function start(app) {
   // Verificar si el bridge ya está corriendo
   const bridgeRunning = await checkPort(DEFAULT_PORT);
   
+  const packageManager = 'npx pnpm';
+
   if (!bridgeRunning) {
     log('Iniciando bridge server...', 'info');
     const bridgePath = path.join(installDir, 'packages', 'bridge', 'dist', 'cli.js');

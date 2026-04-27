@@ -5,6 +5,26 @@
 
 > **Skill de opencode** para integrar Microsoft Office (Excel, Word, PowerPoint) con AI mediante el puente de [office-agents](https://github.com/hewliyang/office-agents).
 
+## ⚠️ Setup Requerido (3 Terminales)
+
+Para desarrollar con office-agents necesitás **3 terminals simultáneas**:
+
+| Terminal | Comando | Descripción |
+|----------|---------|-------------|
+| 1 | `node packages\bridge\dist\cli.js serve` | Bridge server (https://localhost:4017) |
+| 2 | `cd packages/excel && npx vite --port 3000` | Dev server Excel |
+| 3 | `npx office-addin-dev-settings sideload packages\excel\manifest.xml --app Excel` | Sideload add-in |
+
+### O más fácil con la skill:
+
+```bash
+office-agents start excel
+```
+
+Esto abre 2 terminals y después ejecutás el sideload manualmente.
+
+---
+
 ## Requisitos
 
 | Requisito | Versión mínima |
@@ -27,12 +47,14 @@ office-agents install
 
 ### Opción 2: Manual
 
-```bash
-# Clonar este repo
-git clone https://github.com/jadatorin/opencode-office-agents.git ~/.config/opencode/skills/office-agents
+> **Nota**: La ruta `~/.config/opencode/skills/office-agents` es solo un **ejemplo**. Podés instalar en cualquier lugar, solo asegurate de que la skill sea accesible desde opencode.
 
-# O usar enlace simbólico
-ln -s /ruta/a/office-agents ~/.config/opencode/skills/office-agents
+```bash
+# Clonar este repo a cualquier directorio
+git clone https://github.com/jadatorin/opencode-office-agents.git ~/opencode-office-agents
+
+# Luego configurar manually en %APPDATA%\opencode\office-agents.json:
+# {"installDir": "C:\\Users\\tu usuario\\opencode-office-agents"}
 ```
 
 ## Uso Rápido
