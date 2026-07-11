@@ -38,7 +38,7 @@ function parseArgs(args) {
     
     if (actions.includes(arg.toLowerCase())) {
       result.action = arg.toLowerCase();
-    } else if (!result.app && ['excel', 'word', 'ppt'].includes(arg.toLowerCase())) {
+    } else if (!result.app && ['excel', 'word', 'ppt', 'powerpoint'].includes(arg.toLowerCase())) {
       result.app = arg.toLowerCase();
     } else if (arg === '--params' || arg === '-p') {
       result.params = args[i + 1];
@@ -49,7 +49,7 @@ function parseArgs(args) {
     } else if (arg === '--out' || arg === '-o') {
       result.out = args[i + 1];
       i++;
-    } else if (!result.action && !result.app && arg) {
+    } else if (!result.macro && arg) {
       result.macro = arg;
     }
   }

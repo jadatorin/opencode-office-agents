@@ -15,6 +15,7 @@ Directorio de comandos disponibles para la skill office-agents.
 | `tool.js` | Invocar herramientas |
 | `screenshot.js` | Capturar documentos |
 | `vfs.js` | Sistema de archivos virtual |
+| `stop.js` | Detener servicios |
 | `vba.js` | Macros VBA |
 
 ## Uso Rápido

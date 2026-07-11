@@ -67,17 +67,17 @@ office-agents vfs pull word /home/user/uploads/file.xlsx ./local.xlsx
 ### VBA (Macros)
 
 ```bash
-# run-vba - Ejecuta una macro VBA existente
-office-agents run-vba nombre_macro --params "param1,param2"
+# run - Ejecuta una macro VBA existente
+office-agents vba run excel MiMacro --params "p1,p2"
 
-# new-vba - Crea una nueva macro VBA
-office-agents new-vba MiMacro --code "Sub MiMacro()\n    MsgBox \"Hola\"\nEnd Sub"
+# new - Crea una nueva macro VBA
+office-agents vba new excel --code "Sub MiMacro()\n    MsgBox \"Hola\"\nEnd Sub"
 
-# list-vba - Lista macros disponibles en el documento
-office-agents list-vba
+# list - Lista macros disponibles en el documento
+office-agents vba list excel
 
-# export-vba - Exporta el código VBA del documento
-office-agents export-vba --out macros.bas
+# export - Exporta el código VBA del documento
+office-agents vba export excel --out macros.bas
 ```
 
 ## Ejemplos de Uso
@@ -95,7 +95,7 @@ office-agents tool excel set_values --input '{"sheetId":1,"range":"A1","values":
 office-agents exec excel --code "return workbook.worksheets.items.map(w => w.name);"
 
 # Ejecutar macro VBA
-office-agents run-vba CalculateAll
+office-agents vba run excel CalculateAll
 ```
 
 ### Word
@@ -155,5 +155,4 @@ Verificar que Microsoft 365 Apps esté instalado y activo.
 ## Archivos
 
 - `commands/` - Subcomandos de la skill
-- `setup/` - Scripts de instalación
-- `config/` - Configuración
+- `SKILL.md` - Documentación de la skill
