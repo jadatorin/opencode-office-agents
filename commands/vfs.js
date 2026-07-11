@@ -4,7 +4,7 @@
  * Administra el sistema de archivos virtual del add-in
  */
 
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -65,14 +65,11 @@ async function vfs(action, app, options = {}) {
   if (options.source) cmdArgs.push(options.source);
   if (options.dest) cmdArgs.push(options.dest);
   
-  const cmd = [
-    'pnpm',
-    cmdArgs,
-    { cwd: installDir, stdio: 'inherit' }
-  ];
-  
   try {
-    execSync(cmd[0], cmd[1], cmd[2]);
+    const result = spawnSync('pnpm', cmdArgs, { cwd: installDir, stdio: 'inherit', shell: true });
+    if (result.status !== 0) {
+      process.exit(result.status || 1);
+    }
   } catch (error) {
     log(`Error: ${error.message}`);
     process.exit(1);

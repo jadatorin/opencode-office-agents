@@ -201,17 +201,17 @@ async function main() {
     process.exit(1);
   }
 
-  // Ejecutar subcomando - usar exec con shell para manejar espacios
-  const { execSync } = require('child_process');
-  // Obtener solo los argumentos después del subcomando (proces.argv[2] es el comando, [3] es el primero argumento)
-  const subArgs = process.argv.slice(3).join(' ');
-  const cmd = `node "${commandPath}" ${subArgs}`;
-  execSync(cmd, { 
-    stdio: 'inherit', 
-    shell: true,
+  // Ejecutar subcomando - usar spawn con array de args para preservar espacios y comillas
+  const { spawnSync } = require('child_process');
+  const subArgs = process.argv.slice(3);
+  const result = spawnSync('node', [commandPath, ...subArgs], { 
+    stdio: 'inherit',
     cwd: process.cwd(),
     env: process.env
   });
+  if (result.status !== 0) {
+    process.exit(result.status || 1);
+  }
 }
 
 main();

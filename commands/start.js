@@ -24,6 +24,13 @@ function getConfig() {
   return null;
 }
 
+function resolvePnpmCmd() {
+  // %APPDATA% ya incluye Roaming en Windows
+  const pnpmPath = path.join(process.env.APPDATA || '', 'npm', 'pnpm.cmd');
+  if (fs.existsSync(pnpmPath)) return pnpmPath;
+  return 'pnpm';
+}
+
 function checkPort(port) {
   return new Promise((resolve) => {
     const client = new net.Socket();
@@ -69,11 +76,30 @@ async function start(app) {
   
   if (!bridgeRunning) {
     log('Iniciando bridge server...', 'info');
-    const bridge = spawn('pnpm', ['bridge:serve'], {
+    const bridgePath = path.join(installDir, 'packages', 'bridge', 'dist', 'cli.js');
+    if (!fs.existsSync(bridgePath)) {
+      log('Bridge no compilado. Ejecutando compilación...', 'warn');
+      execSync('npx tsc -p tsconfig.build.json', {
+        cwd: path.join(installDir, 'packages', 'bridge'),
+        stdio: 'inherit',
+        shell: true
+      });
+    }
+    const bridge = spawn('node', [bridgePath, 'serve'], {
       cwd: installDir,
       stdio: 'inherit',
       shell: true,
       detached: false
+    });
+    
+    // Guardar PID para stop.js
+    const pidDir = path.join(process.env.APPDATA, 'opencode');
+    fs.mkdirSync(pidDir, { recursive: true });
+    fs.writeFileSync(path.join(pidDir, 'office-bridge.pid'), String(bridge.pid));
+    
+    bridge.on('exit', () => {
+      const pidFile = path.join(pidDir, 'office-bridge.pid');
+      if (fs.existsSync(pidFile)) fs.unlinkSync(pidFile);
     });
     
     // Esperar a que inicie
@@ -84,7 +110,8 @@ async function start(app) {
   
   // Iniciar el dev server de la app
   log(`Iniciando ${appConfig.name} dev server...`, 'info');
-  const devServer = spawn('pnpm', [appConfig.script], {
+  const pnpmCmd = resolvePnpmCmd();
+  const devServer = spawn(pnpmCmd, [appConfig.script], {
     cwd: installDir,
     stdio: 'inherit',
     shell: true,
@@ -97,11 +124,14 @@ async function start(app) {
   // Abrir Office con el add-in sideloaded
   log(`Abriendo ${appConfig.name}...`, 'info');
   
-  const officeExe = path.join(
+  const officePaths = [
     'C:\\Program Files\\Microsoft Office\\root\\Office16',
-    app === 'ppt' || app === 'powerpoint' ? 'POWERPNT.EXE' :
-    app === 'word' ? 'WINWORD.EXE' : 'EXCEL.EXE'
-  );
+    'C:\\Program Files (x86)\\Microsoft Office\\root\\Office16'
+  ];
+  const officeName = app === 'ppt' || app === 'powerpoint' ? 'POWERPNT.EXE' :
+    app === 'word' ? 'WINWORD.EXE' : 'EXCEL.EXE';
+  const officeExe = officePaths.map(p => path.join(p, officeName)).find(p => fs.existsSync(p)) ||
+    path.join(officePaths[0], officeName);
   
   spawn(officeExe, [], {
     detached: true,

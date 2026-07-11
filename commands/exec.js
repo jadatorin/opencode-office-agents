@@ -4,7 +4,7 @@
  * Ejecuta código JavaScript en el documento de Office
  */
 
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -50,15 +50,14 @@ async function exec(app, code, options = {}) {
   const installDir = config.installDir;
   const appName = app === 'ppt' || app === 'powerpoint' ? 'powerpoint' : app;
   
-  // Usar el Bridge CLI
-  const cmd = [
-    'pnpm',
-    ['exec', 'office-bridge', 'exec', appName, '--code', code, ...(options.sandbox ? ['--sandbox'] : [])],
-    { cwd: installDir, stdio: 'inherit' }
-  ];
+  const execArgs = ['exec', 'office-bridge', 'exec', appName, '--code', code];
+  if (options.sandbox) execArgs.push('--sandbox');
   
   try {
-    execSync(cmd[0], cmd[1], cmd[2]);
+    const result = spawnSync('pnpm', execArgs, { cwd: installDir, stdio: 'inherit', shell: true });
+    if (result.status !== 0) {
+      process.exit(result.status || 1);
+    }
   } catch (error) {
     log(`Error: ${error.message}`);
     process.exit(1);

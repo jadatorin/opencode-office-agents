@@ -9,7 +9,7 @@ const fs = require('fs');
 const path = require('path');
 
 const INSTALL_DIR = path.join(process.env.USERPROFILE || process.env.HOME, 'office-agents');
-const ALT_INSTALL_DIR = 'C:\\Users\\5 de julio\\office-agents';
+// (ALT_INSTALL_DIR removed — was developer-specific artifact)
 
 function log(msg, type = 'info') {
   const symbols = { info: 'ℹ', success: '✓', error: '✗', warn: '⚠' };
@@ -76,14 +76,19 @@ async function install() {
   const officePaths = [
     'C:\\Program Files\\Microsoft Office\\root\\Office16\\EXCEL.EXE',
     'C:\\Program Files\\Microsoft Office\\root\\Office16\\WINWORD.EXE',
-    'C:\\Program Files\\Microsoft Office\\root\\Office16\\POWERPNT.EXE'
+    'C:\\Program Files\\Microsoft Office\\root\\Office16\\POWERPNT.EXE',
+    'C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\EXCEL.EXE',
+    'C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\WINWORD.EXE',
+    'C:\\Program Files (x86)\\Microsoft Office\\root\\Office16\\POWERPNT.EXE'
   ];
   
   const officeApps = ['Excel', 'Word', 'PowerPoint'];
+  const officeFiles = ['EXCEL.EXE', 'WINWORD.EXE', 'POWERPNT.EXE'];
   let hasOffice = false;
   
-  for (let i = 0; i < officePaths.length; i++) {
-    if (fs.existsSync(officePaths[i])) {
+  for (let i = 0; i < officeApps.length; i++) {
+    const exists = officePaths.some(p => p.endsWith(officeFiles[i]) && fs.existsSync(p));
+    if (exists) {
       log(`${officeApps[i]}: ✓`, 'success');
       hasOffice = true;
     }
@@ -96,10 +101,7 @@ async function install() {
   
 // 2. Clonar repo (check both possible locations)
   let targetDir = INSTALL_DIR;
-  if (fs.existsSync(ALT_INSTALL_DIR)) {
-    targetDir = ALT_INSTALL_DIR;
-    log('Repo encontrado en ubicación alternativa', 'info');
-  } else if (fs.existsSync(INSTALL_DIR)) {
+  if (fs.existsSync(INSTALL_DIR)) {
     log('Repo ya existe, actualizando...', 'warn');
     execSync('git pull', { cwd: targetDir, stdio: 'inherit', shell: true });
   } else {
@@ -111,16 +113,16 @@ async function install() {
   }
   
   // Use the found dir for all subsequent operations
-  const finalDir = fs.existsSync(ALT_INSTALL_DIR) ? ALT_INSTALL_DIR : INSTALL_DIR;
+  const finalDir = INSTALL_DIR;
 
   // 3. Instalar dependencias (use npx pnpm as fallback)
   log('Instalando dependencias...', 'info');
-  const pnpmCmd = process.platform === 'win32' ? 'npx pnpm' : 'npx pnpm';
+  const pnpmCmd = 'npx pnpm';
   try {
     execSync(pnpmCmd + ' install', { cwd: finalDir, stdio: 'inherit', shell: true });
   } catch {
-    log('Retry con npm...', 'warn');
-    execSync('npm install', { cwd: finalDir, stdio: 'inherit', shell: true });
+    log('pnpm install falló. Intentá correrlo manualmente en ' + finalDir, 'error');
+    process.exit(1);
   }
 
   // 4. Configurar certificados de desarrollo
@@ -148,48 +150,6 @@ async function install() {
   
   log(`\n✓ Setup completo!`, 'success');
   log(`Ubicación: ${finalDir}`, 'info');
-  log(`\nPróximo paso:`, 'info');
-  log(`  office-agents start excel`, 'info');
-}
-  
-  // 3. Instalar dependencias (use npx pnpm as fallback)
-  log('Instalando dependencias...', 'info');
-  const pnpmCmd = process.platform === 'win32' ? 'npx pnpm' : 'npx pnpm';
-  try {
-    execSync(pnpmCmd + ' install', { cwd: INSTALL_DIR, stdio: 'inherit', shell: true });
-  } catch {
-    log('Retry con npm...', 'warn');
-    execSync('npm install', { cwd: INSTALL_DIR, stdio: 'inherit', shell: true });
   }
-  
-  // 4. Configurar certificados de desarrollo
-  log('Configurando certificados de desarrollo...', 'info');
-  try {
-    execSync('npx office-addin-dev-certs install', { 
-      cwd: INSTALL_DIR, 
-      stdio: 'inherit',
-      shell: true
-    });
-  } catch {
-    log('Certificados ya configurados o requiere atención manual', 'warn');
-  }
-  
-// 5. Guardar ubicación en config  
-  const finalDir = fs.existsSync(ALT_INSTALL_DIR) ? ALT_INSTALL_DIR : INSTALL_DIR;
-  const configPath = path.join(process.env.APPDATA, 'opencode', 'office-agents.json');
-  const config = {
-    installDir: finalDir,
-    installedAt: new Date().toISOString(),
-    version: 'latest'
-  };
-
-  fs.mkdirSync(path.dirname(configPath), { recursive: true });
-  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
-  
-  log(`\n✓ Setup completo!`, 'success');
-  log(`Ubicación: ${finalDir}`, 'info');
-  log(`\nPróximo paso:`, 'info');
-  log(`  office-agents start excel`, 'info');
-}
 
 install();

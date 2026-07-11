@@ -4,7 +4,7 @@
  * Captura documentos de Office como imágenes
  */
 
-const { execSync } = require('child_process');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 
@@ -68,14 +68,11 @@ async function screenshot(app, options = {}) {
   if (options.slideIndex) cmdArgs.push('--slide-index', options.slideIndex);
   if (options.out) cmdArgs.push('--out', options.out);
   
-  const cmd = [
-    'pnpm',
-    cmdArgs,
-    { cwd: installDir, stdio: 'inherit' }
-  ];
-  
   try {
-    execSync(cmd[0], cmd[1], cmd[2]);
+    const result = spawnSync('pnpm', cmdArgs, { cwd: installDir, stdio: 'inherit', shell: true });
+    if (result.status !== 0) {
+      process.exit(result.status || 1);
+    }
   } catch (error) {
     log(`Error: ${error.message}`);
     process.exit(1);
