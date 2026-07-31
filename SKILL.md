@@ -125,7 +125,7 @@ office-agents tool word get_document_properties
 ```bash
 # Obtener slides
 office-agents exec ppt --code "
-  const slides =Presentation.slides.items;
+  const slides = Presentation.slides.items;
   return slides.length;
 "
 
@@ -142,7 +142,7 @@ office-agents stop
 office-agents start excel
 ```
 
-### Error:Certificados de desarrollo
+### Error: Certificados de desarrollo
 ```bash
 # Regenerar certificados
 cd office-agents
