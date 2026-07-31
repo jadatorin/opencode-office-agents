@@ -90,7 +90,7 @@ async function start(app) {
     const bridge = spawn('node', [bridgePath, 'serve'], {
       cwd: installDir,
       stdio: 'inherit',
-      shell: true,
+      shell: false,
       detached: false
     });
     
